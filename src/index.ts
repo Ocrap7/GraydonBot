@@ -1,21 +1,28 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { REST } from "@discordjs/rest";
 
+import { ChatGPTAPI } from 'chatgpt';
+
 import { Routes } from "discord-api-types/v9";
 import {
+	ActivityType,
 	Awaitable,
 	Client,
 	CommandInteraction,
-	EmbedBuilder,
+	Events,
 	GatewayIntentBits,
 	Partials,
-	TextChannel,
 } from "discord.js";
 import path from "path";
 import fs from 'fs'
-import config from './config.json';
+import config from './config.json' assert {type: "json"};
+import { fileURLToPath } from 'url';
 
-const rest = new REST({ version: "9" }).setToken(config.token);
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const rest = new REST({ version: "10" }).setToken(config.token);
 
 const client = new Client({
 	partials: [Partials.Channel],
@@ -60,6 +67,10 @@ ready_promises.push(
 
 
 client.on("ready", async () => {
+	// client.user?.setSta?tus('dnd')
+	client.user?.setActivity({type: ActivityType.Listening, name: 'Mao Zedong Propoganda Music: Red sun in the sky'})
+	client.user?.setActivity({type: ActivityType.Listening, name: '中文歌'})
+	client.user?.setActivity({type: ActivityType.Streaming, name: '冰淇淋', url: 'https://www.twitch.tv/ocrap7'})
 	console.log("Bot Ready");
 
 	try {
@@ -76,6 +87,17 @@ client.on("ready", async () => {
 	}
 });
 
+client.on(Events.MessageCreate, m => {
+	if (m.author == client.user) return;
+
+	if (m.author.id === '247545680002809857') {
+		m.reply('Oliver please help me code!!!');
+		return;
+	}
+
+	m.reply('Are you dumb???');
+});
+
 client.on("interactionCreate", async (interaction) => {
 	if (interaction.isCommand())
 		return commands
@@ -84,3 +106,21 @@ client.on("interactionCreate", async (interaction) => {
 });
 
 Promise.all(ready_promises).then(client.login.bind(client, config.token));
+
+
+async function example() {
+	// sessionToken is required; see below for details
+	const api = new ChatGPTAPI({ sessionToken: config.chatGPTSession })
+
+	// ensure the API is properly authenticated
+	await api.ensureAuth()
+
+	// send a message and wait for the response
+	const response = await api.sendMessage(
+		'Write a python version of bubble sort. Do not include example usage.'
+	)
+
+	// response is a markdown-formatted string
+	console.log(response)
+}
+example();
