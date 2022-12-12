@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { REST } from "@discordjs/rest";
 
-import { ChatGPTAPI } from 'chatgpt';
+import { ChatGPTAPI, ChatGPTConversation } from 'chatgpt';
 
 import { Routes } from "discord-api-types/v9";
 import {
@@ -12,6 +12,7 @@ import {
 	Events,
 	GatewayIntentBits,
 	Partials,
+	TextChannel,
 } from "discord.js";
 import path from "path";
 import fs from 'fs'
@@ -68,9 +69,9 @@ ready_promises.push(
 
 client.on("ready", async () => {
 	// client.user?.setSta?tus('dnd')
-	client.user?.setActivity({type: ActivityType.Listening, name: 'Mao Zedong Propoganda Music: Red sun in the sky'})
-	client.user?.setActivity({type: ActivityType.Listening, name: '中文歌'})
-	client.user?.setActivity({type: ActivityType.Streaming, name: '冰淇淋', url: 'https://www.twitch.tv/ocrap7'})
+	client.user?.setActivity({ type: ActivityType.Listening, name: 'Mao Zedong Propoganda Music: Red sun in the sky' })
+	client.user?.setActivity({ type: ActivityType.Listening, name: '中文歌' })
+	client.user?.setActivity({ type: ActivityType.Streaming, name: '冰淇淋', url: 'https://www.twitch.tv/ocrap7' })
 	console.log("Bot Ready");
 
 	try {
@@ -87,15 +88,30 @@ client.on("ready", async () => {
 	}
 });
 
-client.on(Events.MessageCreate, m => {
+client.on(Events.MessageCreate, async m => {
 	if (m.author == client.user) return;
 
-	if (m.author.id === '247545680002809857') {
-		m.reply('Oliver please help me code!!!');
-		return;
+	// if (m.author.id === '247545680002809857') {
+	// 	m.reply('Oliver please help me code!!!');
+	// 	return;
+	// }
+	let tc = m.channel as TextChannel;
+
+	tc.sendTyping();
+	const handle = setInterval(() => {
+		tc.sendTyping();
+	}, 5000);
+
+	let response;
+	try {
+		response = await request(m.content);
+	} catch (error) {
+		response = "*ooga booga! leave a message!*"
 	}
 
-	m.reply('Are you dumb???');
+	clearInterval(handle);
+
+	m.reply(response);
 });
 
 client.on("interactionCreate", async (interaction) => {
@@ -107,20 +123,44 @@ client.on("interactionCreate", async (interaction) => {
 
 Promise.all(ready_promises).then(client.login.bind(client, config.token));
 
+const keywords = [
+	"graydon",
+	"java",
+	"bing chilling",
+];
 
-async function example() {
-	// sessionToken is required; see below for details
-	const api = new ChatGPTAPI({ sessionToken: config.chatGPTSession })
+const traits = [
+	// `You always call people dumb`,
+	`You ara a chad named graydon. `,
+	`You hate java. `,
+	// `Your catchphrase is "Are you joking me???????"`,
+	// `You love to eat bing chilling`,
+	// `You like to say breh`,
+	`Respond to this in the most toxic chad way:`
+];
 
-	// ensure the API is properly authenticated
+const api = new ChatGPTAPI({ sessionToken: config.chatGPTSession, clearanceToken: 'XY.cbEMlQaludC_eVUc8BC26wCrwzRzRShh3gSGpXgM-1670807211-0-160', })
+
+let currentConv: ChatGPTConversation | null = null;
+let handle: NodeJS.Timeout;
+
+async function request(prompt: string) {
 	await api.ensureAuth()
 
-	// send a message and wait for the response
-	const response = await api.sendMessage(
-		'Write a python version of bubble sort. Do not include example usage.'
-	)
+	if (currentConv === null) {
+		currentConv = api.getConversation();
+	}
 
-	// response is a markdown-formatted string
-	console.log(response)
+	clearTimeout(handle);
+
+	handle = setTimeout(() => {
+		currentConv = null;
+	});
+
+
+	const response = currentConv.sendMessage(
+		traits.join(". ") + prompt
+	);
+
+	return response
 }
-example();

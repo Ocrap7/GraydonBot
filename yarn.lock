@@ -114,10 +114,10 @@ character-entities@^2.0.0:
   resolved "https://registry.yarnpkg.com/character-entities/-/character-entities-2.0.2.tgz#2d09c2e72cd9523076ccb21157dff66ad43fcc22"
   integrity sha512-shx7oQ0Awen/BRIdkjkvz54PnEEI/EjwXDSIZp86/KKdbafHh1Df/RYGBhn4hbe2+uKC9FnT5UCEdyPz3ai9hQ==
 
-chatgpt@^2.0.7:
-  version "2.0.7"
-  resolved "https://registry.yarnpkg.com/chatgpt/-/chatgpt-2.0.7.tgz#cb1f6aa81604917b4c389cfc2e9186f81566d7d3"
-  integrity sha512-+yEWRFl+vZbuXI2T96G1WZjE8g2eYs8Czi5pr/EpE64fPOVsZxQw3cgWETbGYICYD7mSpvh00r2fVHQfRM0NNg==
+chatgpt@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/chatgpt/-/chatgpt-2.1.0.tgz#0767898db362ab4c378b46ec7135f9d776dfaf52"
+  integrity sha512-QVs7z7ffFmwRrt7MXz8TPSKsajPkABA5fteAmD77BZ2PNtP0ZqLsyZngpMETGNws1lCgrUiEhtwwxe9OwZ0YkA==
   dependencies:
     eventsource-parser "^0.0.5"
     expiry-map "^2.0.0"
